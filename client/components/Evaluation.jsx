@@ -17,7 +17,7 @@ export default function Evaluation({ evaluation }) {
   const paragraphsToDisplay = [];
   for (var i = 0; i < paragraphs.length; ++i) {
     paragraphsToDisplay.push(
-      <pre className="text-wrap" key={i}>
+      <pre className="text-wrap" key={`pre_key_${i}`}>
         {p.trim() === '' ? '\u00A0' : p}
       </pre>
     );
