@@ -67,6 +67,7 @@ Areas to Improve:
 - Relevance -- <advice if I can make my answers more relevant to the questions you asked>
 ---
 Translate the form above into the language the user used. For example, if they speak in Russian, use Russian.
+DO NOT USE JSON. No JSON.
 
 - All <advices> should be one-two sentences and strictly related to the answers I gave. 
 Advices must be actionable and be specific about what to do next.
@@ -237,9 +238,8 @@ export default function App() {
       // Append new server events to the list
       dataChannel.addEventListener("message", (e) => {
         const event_obj = JSON.parse(e.data)
-        console.log(event_obj);
+        // console.log(event_obj);
         if (event_obj.type === "response.text.done") {
-          console.log(`---- ${event_obj.text.trim()}`)
           setEvaluation(event_obj.text.trim());
           closeSession();
           return;

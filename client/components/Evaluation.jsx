@@ -15,7 +15,13 @@ export default function Evaluation({ evaluation }) {
   const paragraphs = obtainParagraphs(evaluation);
   
   const paragraphsToDisplay = [];
-  paragraphs.map(p => paragraphsToDisplay.push(<pre className="text-wrap">{p.trim() === '' ? '\u00A0' : p}</pre>));
+  for (var i = 0; i < paragraphs.length; ++i) {
+    paragraphsToDisplay.push(
+      <pre className="text-wrap" key={i}>
+        {p.trim() === '' ? '\u00A0' : p}
+      </pre>
+    );
+  }
   
   return (
     <section className="h-full w-full flex flex-col gap-4">
