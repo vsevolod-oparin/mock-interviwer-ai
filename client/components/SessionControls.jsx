@@ -43,7 +43,6 @@ function SessionActive({ stopSession, setMutePc }) {
   const [disconnecting, setDisconnecting] = useState(false);
 
   function muteSessionHandler() {
-    console.log(`Hello? ${mute}`);
     setMute(prev => {
       setMutePc(!prev);
       return !prev;

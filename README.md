@@ -24,6 +24,11 @@ npm run dev
 
 This should start the console application on [http://localhost:3000](http://localhost:3000).
 
+## TODO
+
+- Add custom API KEY
+- Some refactoring is needed
+
 ## License
 
 MIT

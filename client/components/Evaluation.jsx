@@ -18,7 +18,7 @@ export default function Evaluation({ evaluation }) {
   for (var i = 0; i < paragraphs.length; ++i) {
     paragraphsToDisplay.push(
       <pre className="text-wrap" key={`pre_key_${i}`}>
-        {paragraphs[i].trim() === '' ? '\u00A0' : p}
+        {paragraphs[i].trim() === '' ? '\u00A0' : paragraphs[i].trim()}
       </pre>
     );
   }

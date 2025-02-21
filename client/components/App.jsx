@@ -74,6 +74,7 @@ Advices must be actionable and be specific about what to do next.
 - <x> can be from 1 to 10.
 - If you last messages were not in English, translate into the language the user used.`;
 
+const evaluation_default = "After finishing the session, you'll see the results here.";
 
 export default function App() {
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -83,7 +84,7 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [progressMessage, setProgressMessage] = useState(null);
   const [progressContent, setProgressContent] = useState([]);
-  const [evaluation, setEvaluation] = useState(null);
+  const [evaluation, setEvaluation] = useState(evaluation_default);
   
   const peerConnection = useRef(null);
   const audioElement = useRef(null);
@@ -99,7 +100,7 @@ export default function App() {
     setMessages([]);
     setProgressMessage(null);
     setProgressContent([]);
-    setEvaluation(null);
+    setEvaluation(evaluation_default);
 
     // Get an ephemeral key from the Fastify server
     const tokenResponse = await fetch("/token");

@@ -1,22 +1,33 @@
 import express from "express";
-import fs from "fs";
+import fs from "node:fs/promises";
 import multer from "multer";
-import { createServer as createViteServer } from "vite";
 import "dotenv/config";
 
 import pdf from "pdf-parse-debugging-disabled";
 
 const app = express();
-const port = process.env.PORT || 3000;
-const apiKey = process.env.OPENAI_API_KEY;
 
-// Configure Vite middleware for React client
-const vite = await createViteServer({
-  server: { middlewareMode: true },
-  appType: "custom",
-});
-app.use(vite.middlewares);
+const isProduction  = process.env.NODE_ENV === 'production';
+const port          = process.env.PORT || 3000;
+const base          = process.env.BASE || '/';
+const apiKey        = process.env.OPENAI_API_KEY;
 
+// Configure Vite middleware for React client if not in prod
+let vite
+if (!isProduction) {
+  const { createServer } = await import('vite')
+  vite = await createServer({
+    server: { middlewareMode: true },
+    appType: 'custom',
+    base,
+  })
+  app.use(vite.middlewares)
+} else {
+  const compression = (await import('compression')).default
+  const sirv = (await import('sirv')).default
+  app.use(compression())
+  app.use(base, sirv('./client/dist/client', { extensions: [] }))
+}
 
 // Configure multer for file uploads
 const upload = multer({ dest: 'uploads/' });
@@ -40,7 +51,7 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
 });
 
 
-const system_prompt = fs.readFileSync('./prompts/system.txt', "utf8");
+const system_prompt = await fs.readFile('./prompts/system.txt', "utf8");
 // API route for token generation
 app.get("/token", async (req, res) => {
   try {
@@ -77,16 +88,28 @@ app.use("*", async (req, res, next) => {
   const url = req.originalUrl;
 
   try {
-    const template = await vite.transformIndexHtml(
-      url,
-      fs.readFileSync("./client/index.html", "utf-8"),
-    );
-    const { render } = await vite.ssrLoadModule("./client/entry-server.jsx");
+    let template;
+    let render;
+    if (!isProduction) {
+      template = await vite.transformIndexHtml(
+        url,
+        await fs.readFile("./client/index.html", "utf-8"),
+      );
+      render = (await vite.ssrLoadModule("./client/entry-server.jsx")).render;
+    } else {
+      template = await fs.readFile('./client/dist/client/index.html', 'utf-8');
+      render = (await import('./client/dist/server/entry-server.js')).render;
+    }
     const appHtml = await render(url);
-    const html = template.replace(`<!--ssr-outlet-->`, appHtml?.html);
+
+    const html = template
+      .replace(`<!--ssr-outlet-->`, appHtml?.html);
+      //.replace(`<!-- head -->`, appHtml?.head);
     res.status(200).set({ "Content-Type": "text/html" }).end(html);
   } catch (e) {
-    vite.ssrFixStacktrace(e);
+    vite?.ssrFixStacktrace(e);
+    console.log(e.stack)
+    res.status(500).end(e.stack)
     next(e);
   }
 });
